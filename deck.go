@@ -1,15 +1,14 @@
 package poker
 
 import (
+	"encoding/binary"
 	"math/rand"
-	"time"
 )
 
 var fullDeck *Deck
 
 func init() {
 	fullDeck = &Deck{initializeFullCards()}
-	rand.Seed(time.Now().UnixNano())
 }
 
 type Deck struct {
@@ -19,6 +18,13 @@ type Deck struct {
 func NewDeck() *Deck {
 	deck := &Deck{}
 	deck.Shuffle()
+	return deck
+}
+
+func NewDeckNoShuffle() *Deck {
+	deck := &Deck{}
+	deck.cards = make([]Card, len(fullDeck.cards))
+	copy(deck.cards, fullDeck.cards)
 	return deck
 }
 
@@ -34,6 +40,19 @@ func (deck *Deck) Draw(n int) []Card {
 	cards := make([]Card, n)
 	copy(cards, deck.cards[:n])
 	deck.cards = deck.cards[n:]
+	return cards
+}
+
+func (deck *Deck) DrawWithRng(n int, seed []byte) []Card {
+	cards := make([]Card, n)
+	if n > (len(seed) / 4) {
+		return nil
+	}
+	for i := 0; i < n; i++ {
+		idx := binary.BigEndian.Uint32(seed[i:i+4]) % uint32(len(deck.cards))
+		cards[i] = deck.cards[idx]
+		deck.cards = append(deck.cards[:idx], deck.cards[idx+1:]...)
+	}
 	return cards
 }
 

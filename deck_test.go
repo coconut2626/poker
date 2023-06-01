@@ -40,3 +40,25 @@ func TestEmpty(t *testing.T) {
 	deck.Draw(1)
 	assert.True(t, deck.Empty())
 }
+
+func TestNewDeckNoShuffle(t *testing.T) {
+	deck := NewDeckNoShuffle()
+	assert.Len(t, deck.cards, 52)
+	hand := deck.Draw(5)
+	t.Log(hand)
+}
+
+func TestDrawWithRng(t *testing.T) {
+	seed := []byte{
+		0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
+		0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+		0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00,
+		0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+	}
+	deck := NewDeckNoShuffle()
+	t.Log(deck.cards)
+	cards := deck.DrawWithRng(5, seed)
+	assert.Len(t, cards, 5)
+	t.Log(cards)
+	t.Log(RankClass(Evaluate(cards)))
+}
